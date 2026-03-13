@@ -1,17 +1,16 @@
-export function initGlobe(){
+// globe.js
+import { Globe } from 'https://unpkg.com/globe.gl@2.26.0/dist/globe.gl.js'
 
-const globe = Globe()(document.getElementById("globe"))
-
-.globeImageUrl(
-"//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
-)
-
-.polygonCapColor(()=>"rgba(200,150,80,0.8)")
-.polygonSideColor(()=>"rgba(0,0,0,0)")
-.polygonStrokeColor(()=>"black")
-
-return globe
-
+export function initGlobe() {
+    const globe = new Globe()
+        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')  // optionnel
+        .polygonsData([])   // on remplira plus tard
+        .polygonAltitude(0.01)
+        .polygonCapColor(() => 'green')
+        .polygonSideColor(() => 'rgba(0,100,0,0.5)')
+        .polygonStrokeColor(() => 'black')
+    globe(document.getElementById('globeViz'))
+    return globe
 }
 
 export function updatePolygons(globe,data){
