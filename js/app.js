@@ -55,6 +55,7 @@ function reconstructContinents(continents, rotations, time){
         for(const ring of feature.geometry.coordinates){
             for(const p of ring){
                 const r = rotatePoint(p, time, rotationData)
+                console.log('rotatePoint', p, '->', r)
                 p[0] = r[0]
                 p[1] = r[1]
             }
