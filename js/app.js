@@ -13,6 +13,7 @@ async function loadData(){
     const rotText = await rotRes.text()
 
     rotations = parseRotations(rotText)
+    console.log("rotation keys:", Object.keys(rotations))
 }
 
 async function init(){
@@ -46,7 +47,7 @@ function update(time){
 // reconstructContinents.js
 function reconstructContinents(continents, rotations, time){
     const result = JSON.parse(JSON.stringify(continents))
-
+    console.log("plate IDs continents:", result.features.map(f=>f.properties.plate_id))
     for(const feature of result.features){
         const plate = feature.properties.plate_id
         const rotationData = rotations[plate]
