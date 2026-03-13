@@ -1,6 +1,4 @@
 // globe.js
-import { Globe } from 'https://unpkg.com/globe.gl@2.26.0/dist/globe.gl.js'
-
 export function initGlobe() {
     const globe = new Globe()
         .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')  // optionnel
