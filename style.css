@@ -5,18 +5,28 @@ font-family:Arial;
 }
 
 #globe {
-position:absolute;
-top:0;
-left:0;
-width:100%;
-height:100%;
+  position: absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
 }
 
 #ui {
-position:absolute;
-top:20px;
-left:20px;
-background:white;
-padding:10px;
-border-radius:8px;
+  position: absolute;   /* position au-dessus du globe */
+  top: 20px;            /* distance depuis le haut */
+  left: 20px;           /* distance depuis la gauche */
+  background: rgba(255,255,255,0.9); /* fond semi-transparent pour voir le globe dessous */
+  padding: 10px;
+  border-radius: 8px;
+  z-index: 10;          /* au-dessus du globe */
+}
+
+#timeSlider {
+  width: 200px;
+}
+
+#timeLabel {
+  font-weight: bold;
+  margin-left: 10px;
 }
