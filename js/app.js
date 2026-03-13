@@ -9,12 +9,12 @@ let globe
 async function loadData(){
 
 const continentsRes =
-await fetch("../data/continents_with_plate.geojson")
+await fetch("data/continents_with_plate.geojson")
 
 continents = await continentsRes.json()
 
 const rotRes =
-await fetch("../data/rotations.rot")
+await fetch("data/rotations.rot")
 
 const rotText = await rotRes.text()
 
