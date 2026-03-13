@@ -50,4 +50,11 @@ function update(time) {
     updatePolygons(globe, reconstructed)
 }
 
+console.log(reconstructContinents(
+    { features: [continents.features.find(f => f.properties.plate_id==='AF')] }, 
+    rotations, 
+    { 'AF': '101' }, 
+    50  // Ma
+))
+
 init()
