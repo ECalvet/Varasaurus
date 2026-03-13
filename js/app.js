@@ -36,6 +36,12 @@ async function init(){
 // La fonction update reprend le rôle de mettre à jour le globe
 function update(time){
     const reconstructed = reconstructContinents(continents, rotations, time)
+    
+    // Debug : comparer le premier point du premier continent
+    const oldPoint = continents.features[0].geometry.coordinates[0][0]
+    const newPoint = reconstructed.features[0].geometry.coordinates[0][0]
+    console.log(`time=${time} Ma, delta lon=${newPoint[0]-oldPoint[0]}, delta lat=${newPoint[1]-oldPoint[1]}`)
+    
     updatePolygons(globe, reconstructed)
 }
 
