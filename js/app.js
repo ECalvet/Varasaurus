@@ -1,9 +1,6 @@
 import { initGlobe, updatePolygons } from "./globe.js"
 import { parseRotations } from "./rotation.js"
 
-// Suppression de l'import de reconstructContinents externe car tu l'as défini ici
-// import { reconstructContinents } from "./reconstruction.js"
-
 let continents
 let rotations
 let globe
