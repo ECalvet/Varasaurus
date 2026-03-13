@@ -13,10 +13,25 @@ async function init() {
     const rotText = await rotRes.text()
     rotations = parseRotations(rotText)
 
-    // 2️⃣ initialiser le globe
+    // 2️⃣ mapping automatique + manuel
+    const plateIdMap = {}
+    const rotationKeys = Object.keys(rotations)
+    const plateIds = [...new Set(continents.features.map(f => f.properties.plate_id))]
+
+    for(const plate of plateIds){
+        if(rotationKeys.includes(plate)){
+            plateIdMap[plate] = plate
+        } else {
+            // compléter manuellement si nécessaire
+            console.warn(`Pas de correspondance automatique pour plate_id "${plate}"`)
+        }
+    }
+    console.log("Mapping plaques :", plateIdMap)
+
+    // 3️⃣ initialiser le globe
     globe = initGlobe()
 
-    // 3️⃣ setup slider
+    // 4️⃣ setup slider
     const slider = document.getElementById("timeSlider")
     slider.oninput = e => {
         const t = parseFloat(e.target.value)
@@ -24,7 +39,7 @@ async function init() {
         update(t)
     }
 
-    // 4️⃣ afficher l’état initial
+    // 5️⃣ afficher l’état initial
     update(0)
 }
 
