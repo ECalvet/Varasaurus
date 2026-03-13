@@ -9,7 +9,7 @@ let rotations
 let globe
 
 async function loadData(){
-    const continentsRes = await fetch("data/continents_with_plate.geojson")
+    const continentsRes = await fetch("data/continents_simplified.geojson")
     continents = await continentsRes.json()
 
     const rotRes = await fetch("data/rotations.rot")
