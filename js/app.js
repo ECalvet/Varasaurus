@@ -3,6 +3,7 @@ import { parseRotations } from "./rotation.js"
 import { reconstructContinents } from "./reconstruction.js"
 
 let continents, rotations, globe
+let plateIdMap  // <-- déclarer ici pour qu'il soit visible partout
 
 async function init() {
     // 1️⃣ charger les données
@@ -14,7 +15,7 @@ async function init() {
     rotations = parseRotations(rotText)
 
     // 2️⃣ mapping automatique + manuel
-    const plateIdMap = {}
+    plateIdMap = {}  // <-- assigner ici
     const rotationKeys = Object.keys(rotations)
     const plateIds = [...new Set(continents.features.map(f => f.properties.plate_id))]
 
@@ -22,8 +23,9 @@ async function init() {
         if(rotationKeys.includes(plate)){
             plateIdMap[plate] = plate
         } else {
-            // compléter manuellement si nécessaire
             console.warn(`Pas de correspondance automatique pour plate_id "${plate}"`)
+            // tu peux ici compléter manuellement, ex:
+            // if(plate === "AF") plateIdMap[plate] = "101"
         }
     }
     console.log("Mapping plaques :", plateIdMap)
