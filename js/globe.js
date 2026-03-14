@@ -47,17 +47,6 @@ animate();
 
 }
 
-function animate(){
-
-requestAnimationFrame(animate);
-
-console.log("frame");
-
-globe.rotation.y += 0.001;
-
-renderer.render(scene,camera);
-
-}
 
 function createEarth(){
 
@@ -162,8 +151,11 @@ function animate(){
 
 requestAnimationFrame(animate);
 
+console.log("frame");
+
 globe.rotation.y += 0.001;
 
 renderer.render(scene,camera);
 
 }
+
