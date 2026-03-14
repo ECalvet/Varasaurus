@@ -1,32 +1,28 @@
 body {
 margin:0;
 overflow:hidden;
-font-family:Arial;
+font-family:sans-serif;
+background:#000;
+color:white;
 }
 
-#globe {
-  position: absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
+#globe{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
 }
 
-#ui {
-  position: absolute;   /* position au-dessus du globe */
-  top: 20px;            /* distance depuis le haut */
-  left: 20px;           /* distance depuis la gauche */
-  background: rgba(255,255,255,0.9); /* fond semi-transparent pour voir le globe dessous */
-  padding: 10px;
-  border-radius: 8px;
-  z-index: 10;          /* au-dessus du globe */
+#ui{
+position:absolute;
+top:20px;
+left:20px;
+background:rgba(0,0,0,0.5);
+padding:10px;
+border-radius:8px;
 }
 
-#timeSlider {
-  width: 200px;
-}
-
-#timeLabel {
-  font-weight: bold;
-  margin-left: 10px;
+input[type=range]{
+width:250px;
 }
