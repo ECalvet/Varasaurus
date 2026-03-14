@@ -4,7 +4,7 @@ const text = await fetch(path).then(r=>r.text());
 
 const lines = text.split("\n");
 
-const rotations = [];
+const rotations=[];
 
 for(let line of lines){
 
@@ -12,20 +12,14 @@ line=line.trim();
 
 if(line==="" || line.startsWith("!")) continue;
 
-const parts = line.split(/\s+/);
-
-const plate = parts[0];
-const time = parseFloat(parts[1]);
-const lat = parseFloat(parts[2]);
-const lon = parseFloat(parts[3]);
-const angle = parseFloat(parts[4]);
+const p=line.split(/\s+/);
 
 rotations.push({
-plate,
-time,
-lat,
-lon,
-angle
+plate:p[0],
+time:parseFloat(p[1]),
+lat:parseFloat(p[2]),
+lon:parseFloat(p[3]),
+angle:parseFloat(p[4])
 });
 
 }
