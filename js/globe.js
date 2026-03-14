@@ -6,7 +6,7 @@ let renderer;
 let globe;
 let controls;
 
-let plateMeshes = {};
+let continentMeshes = [];
 let rotationsData;
 
 export function initGlobe(three, OrbitControls, continents, plates, rotations){
@@ -25,18 +25,14 @@ window.innerWidth / window.innerHeight,
 
 camera.position.z = 3;
 
-renderer = new THREE.WebGLRenderer({ antialias: true });
-
+renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize(window.innerWidth,window.innerHeight);
 
 document.getElementById("globe").appendChild(renderer.domElement);
 
 controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-controls.minDistance = 1.5;
-controls.maxDistance = 10;
 
 createEarth();
 drawContinents(continents);
@@ -50,97 +46,86 @@ function onResize(){
 
 camera.aspect = window.innerWidth / window.innerHeight;
 camera.updateProjectionMatrix();
-
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize(window.innerWidth,window.innerHeight);
 
 }
 
 function createEarth(){
 
-const geometry = new THREE.SphereGeometry(1, 64, 64);
+const geometry = new THREE.SphereGeometry(1,64,64);
 
 const material = new THREE.MeshBasicMaterial({
-color: 0x001133
+color:0x001133
 });
 
-globe = new THREE.Mesh(geometry, material);
-
+globe = new THREE.Mesh(geometry,material);
 scene.add(globe);
 
 }
 
-function latLonToVector3(lat, lon, radius = 1.01){
+function latLonToVector3(lat,lon,r=1.01){
 
-const phi = (90 - lat) * (Math.PI / 180);
-const theta = (lon + 180) * (Math.PI / 180);
+const phi = (90-lat)*Math.PI/180;
+const theta = (lon+180)*Math.PI/180;
 
-const x = -(radius * Math.sin(phi) * Math.cos(theta));
-const z = (radius * Math.sin(phi) * Math.sin(theta));
-const y = (radius * Math.cos(phi));
-
-return new THREE.Vector3(x, y, z);
+return new THREE.Vector3(
+-(r*Math.sin(phi)*Math.cos(theta)),
+r*Math.cos(phi),
+(r*Math.sin(phi)*Math.sin(theta))
+);
 
 }
 
-function drawPolygon(coords, plateId){
+function drawPolygon(coords,plate){
 
-const material = new THREE.LineBasicMaterial({ color: 0x55ff88 });
+const points=[];
 
-const points = [];
+for(const c of coords){
 
-for(const coord of coords){
-
-const v = latLonToVector3(coord[1], coord[0]);
-points.push(v);
+points.push(latLonToVector3(c[1],c[0]));
 
 }
 
 const geometry = new THREE.BufferGeometry().setFromPoints(points);
 
-const line = new THREE.Line(geometry, material);
+const material = new THREE.LineBasicMaterial({color:0x55ff88});
+
+const line = new THREE.Line(geometry,material);
 
 scene.add(line);
 
-if(!plateMeshes[plateId]){
-plateMeshes[plateId] = [];
-}
-
-plateMeshes[plateId].push(line);
+continentMeshes.push({
+mesh:line,
+plate:plate,
+original:points
+});
 
 }
 
 function drawContinents(data){
 
-console.log("Drawing continents...");
-
-let count = 0;
-
 for(const feature of data.features){
 
 const geom = feature.geometry;
-const plateId = feature.properties.plate_id || "UNKNOWN";
+const plate = feature.properties.plate_id;
 
-if(geom.type === "Polygon"){
+if(geom.type==="Polygon"){
 
 for(const ring of geom.coordinates){
 
-drawPolygon(ring, plateId);
-count++;
+drawPolygon(ring,plate);
 
 }
 
 }
 
-if(geom.type === "MultiPolygon"){
+if(geom.type==="MultiPolygon"){
 
-for(const polygon of geom.coordinates){
+for(const poly of geom.coordinates){
 
-for(const ring of polygon){
+for(const ring of poly){
 
-drawPolygon(ring, plateId);
-count++;
-
-}
+drawPolygon(ring,plate);
 
 }
 
@@ -148,23 +133,21 @@ count++;
 
 }
 
-console.log("Polygons drawn:", count);
+}
 
 }
 
-function getRotationForPlate(plate, time){
+function getRotation(plate,time){
 
-let best = null;
+let best=null;
 
 for(const r of rotationsData){
 
-if(r.plate !== plate) continue;
+if(r.plate!==plate) continue;
 
-if(r.time <= time){
+if(r.time<=time){
 
-if(!best || r.time > best.time){
-best = r;
-}
+if(!best || r.time>best.time) best=r;
 
 }
 
@@ -174,23 +157,38 @@ return best;
 
 }
 
+function rotatePoint(p,axis,angle){
+
+const q = new THREE.Quaternion();
+q.setFromAxisAngle(axis,angle);
+
+return p.clone().applyQuaternion(q);
+
+}
+
 export function updateTime(time){
 
-for(const plate in plateMeshes){
+for(const c of continentMeshes){
 
-const rot = getRotationForPlate(plate, time);
+const rot = getRotation(c.plate,time);
 
 if(!rot) continue;
 
-const axis = latLonToVector3(rot.lat, rot.lon, 1).normalize();
+const axis = latLonToVector3(rot.lat,rot.lon,1).normalize();
 
 const angle = THREE.MathUtils.degToRad(rot.angle);
 
-for(const mesh of plateMeshes[plate]){
+const newPoints=[];
 
-mesh.setRotationFromAxisAngle(axis, angle);
+for(const p of c.original){
+
+const rp = rotatePoint(p,axis,angle);
+
+newPoints.push(rp);
 
 }
+
+c.mesh.geometry.setFromPoints(newPoints);
 
 }
 
@@ -202,6 +200,6 @@ requestAnimationFrame(animate);
 
 controls.update();
 
-renderer.render(scene, camera);
+renderer.render(scene,camera);
 
 }
