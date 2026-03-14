@@ -1,18 +1,23 @@
+let THREE;
+
 let scene;
 let camera;
 let renderer;
 let globe;
+
 let continentMeshes=[];
 
 let continentsData;
 let platesData;
 let rotationsData;
 
-export function initGlobe(continents,plates,rotations){
+export function initGlobe(three, continents, plates, rotations){
 
-continentsData=continents;
-platesData=plates;
-rotationsData=rotations;
+THREE = three;
+
+continentsData = continents;
+platesData = plates;
+rotationsData = rotations;
 
 scene = new THREE.Scene();
 
@@ -23,7 +28,7 @@ window.innerWidth/window.innerHeight,
 1000
 );
 
-camera.position.z=3;
+camera.position.z = 3;
 
 renderer = new THREE.WebGLRenderer({antialias:true});
 
@@ -44,8 +49,7 @@ function createEarth(){
 const geometry = new THREE.SphereGeometry(1,64,64);
 
 const material = new THREE.MeshBasicMaterial({
-color:0x001133,
-wireframe:false
+color:0x001133
 });
 
 globe = new THREE.Mesh(geometry,material);
@@ -81,15 +85,15 @@ const points=[];
 
 polygon.forEach(coord=>{
 
-const v=latLonToVector3(coord[1],coord[0]);
+const v = latLonToVector3(coord[1],coord[0]);
 
 points.push(v);
 
 });
 
-const geometry=new THREE.BufferGeometry().setFromPoints(points);
+const geometry = new THREE.BufferGeometry().setFromPoints(points);
 
-const line=new THREE.Line(geometry,material);
+const line = new THREE.Line(geometry,material);
 
 continentMeshes.push(line);
 
@@ -103,9 +107,7 @@ scene.add(line);
 
 export function updateTime(time){
 
-// Placeholder : ici on appliquera les rotations de plaques
-
-console.log("time",time);
+console.log("Time =",time);
 
 }
 
@@ -113,7 +115,7 @@ function animate(){
 
 requestAnimationFrame(animate);
 
-globe.rotation.y+=0.0005;
+globe.rotation.y += 0.0005;
 
 renderer.render(scene,camera);
 
