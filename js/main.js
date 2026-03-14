@@ -7,15 +7,15 @@ import { loadRotations } from "./rotations.js";
 const slider = document.getElementById("timeSlider");
 const label = document.getElementById("timeValue");
 
-let continents;
-let plates;
-let rotations;
-
 async function init(){
 
-continents = await loadGeoJSON("data/continents.geojson");
-plates = await loadGeoJSON("data/plates.geojson");
-rotations = await loadRotations("data/rotations.rot");
+console.log("Loading data...");
+
+const continents = await loadGeoJSON("data/continents.geojson");
+const plates = await loadGeoJSON("data/plates.geojson");
+const rotations = await loadRotations("data/rotations.rot");
+
+console.log("Data loaded");
 
 initGlobe(THREE, continents, plates, rotations);
 
