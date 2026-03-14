@@ -115,8 +115,14 @@ function drawContinents(data){
 for(const feature of data.features){
 
 const geom=feature.geometry;
-const plate=feature.properties.plate_id;
 
+const plate =
+feature.properties.plate_id ||
+feature.properties.PlateID ||
+feature.properties.plate ||
+"UNKNOWN";
+  
+console.log("plate id:",plate)
 if(geom.type==="Polygon"){
 
 for(const ring of geom.coordinates){
@@ -148,6 +154,9 @@ drawPolygon(ring,plate);
 function preprocessRotations(rotations){
 
 for(const r of rotations){
+
+console.log("rotations plates:",
+[...new Set(rotations.map(r=>r.plate))]);
 
 if(!rotationsByPlate[r.plate]){
 rotationsByPlate[r.plate]=[];
@@ -217,6 +226,7 @@ return q;
 }
 
 export function updateTime(time){
+console.log("updateTime",time);
 
 for(const c of continentMeshes){
 
