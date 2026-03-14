@@ -1,18 +1,35 @@
-export function parseRotations(rotText){
-    const rotations = {}
-    const lines = rotText.split("\n").filter(l => l.trim() && !l.startsWith("#"))
+export async function loadRotations(path){
 
-    for(const line of lines){
-        const [plateId, age, lat, lon, angle] = line.trim().split(/\s+/)
-        if(!rotations[plateId]) rotations[plateId] = []
-        rotations[plateId].push({
-            age: parseFloat(age),
-            lat: parseFloat(lat),
-            lon: parseFloat(lon),
-            angle: parseFloat(angle)
-        })
-    }
+const text = await fetch(path).then(r=>r.text());
 
-    console.log("parsed rotations for first plate:", rotations[Object.keys(rotations)[0]])
-    return rotations
+const lines = text.split("\n");
+
+const rotations = [];
+
+for(let line of lines){
+
+line=line.trim();
+
+if(line==="" || line.startsWith("!")) continue;
+
+const parts = line.split(/\s+/);
+
+const plate = parts[0];
+const time = parseFloat(parts[1]);
+const lat = parseFloat(parts[2]);
+const lon = parseFloat(parts[3]);
+const angle = parseFloat(parts[4]);
+
+rotations.push({
+plate,
+time,
+lat,
+lon,
+angle
+});
+
+}
+
+return rotations;
+
 }
