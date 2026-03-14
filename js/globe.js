@@ -20,17 +20,42 @@ window.innerWidth/window.innerHeight,
 
 camera.position.z = 3;
 
-renderer = new THREE.WebGLRenderer({antialias:true});
+renderer = new THREE.WebGLRenderer({
+antialias:true,
+alpha:true
+});
+
+renderer.setPixelRatio(window.devicePixelRatio);
+
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.getElementById("globe").appendChild(renderer.domElement);
+
+window.addEventListener("resize",()=>{
+
+camera.aspect = window.innerWidth/window.innerHeight;
+camera.updateProjectionMatrix();
 
 renderer.setSize(window.innerWidth,window.innerHeight);
 
-document.getElementById("globe").appendChild(renderer.domElement);
+});
 
 createEarth();
 
 drawContinents(continents);
 
 animate();
+
+}
+
+function animate(){
+
+requestAnimationFrame(animate);
+
+console.log("frame");
+
+globe.rotation.y += 0.001;
+
+renderer.render(scene,camera);
 
 }
 
