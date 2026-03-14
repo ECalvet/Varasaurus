@@ -5,19 +5,9 @@ let camera;
 let renderer;
 let globe;
 
-let continentMeshes=[];
-
-let continentsData;
-let platesData;
-let rotationsData;
-
-export function initGlobe(three, continents, plates, rotations){
+export function initGlobe(three, continents){
 
 THREE = three;
-
-continentsData = continents;
-platesData = plates;
-rotationsData = rotations;
 
 scene = new THREE.Scene();
 
@@ -38,7 +28,7 @@ document.getElementById("globe").appendChild(renderer.domElement);
 
 createEarth();
 
-drawContinents();
+drawContinents(continents);
 
 animate();
 
@@ -71,43 +61,75 @@ return new THREE.Vector3(x,y,z);
 
 }
 
-function drawContinents(){
+function drawPolygon(coords){
 
 const material = new THREE.LineBasicMaterial({color:0x55ff88});
 
-continentsData.features.forEach(feature=>{
-
-const coords = feature.geometry.coordinates;
-
-coords.forEach(polygon=>{
-
 const points=[];
 
-polygon.forEach(coord=>{
+for(let coord of coords){
 
 const v = latLonToVector3(coord[1],coord[0]);
 
 points.push(v);
 
-});
+}
 
 const geometry = new THREE.BufferGeometry().setFromPoints(points);
 
 const line = new THREE.Line(geometry,material);
 
-continentMeshes.push(line);
-
 scene.add(line);
-
-});
-
-});
 
 }
 
-export function updateTime(time){
+function drawContinents(data){
 
-console.log("Time =",time);
+console.log("Drawing continents...");
+
+let count = 0;
+
+for(const feature of data.features){
+
+const geom = feature.geometry;
+
+if(geom.type === "Polygon"){
+
+for(const ring of geom.coordinates){
+
+drawPolygon(ring);
+
+count++;
+
+}
+
+}
+
+if(geom.type === "MultiPolygon"){
+
+for(const polygon of geom.coordinates){
+
+for(const ring of polygon){
+
+drawPolygon(ring);
+
+count++;
+
+}
+
+}
+
+}
+
+}
+
+console.log("Polygons drawn:",count);
+
+}
+
+export function updateTime(t){
+
+console.log("Time =",t);
 
 }
 
@@ -115,7 +137,7 @@ function animate(){
 
 requestAnimationFrame(animate);
 
-globe.rotation.y += 0.0005;
+globe.rotation.y += 0.001;
 
 renderer.render(scene,camera);
 
