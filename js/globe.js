@@ -4,8 +4,9 @@ let scene;
 let camera;
 let renderer;
 let globe;
+let controls;
 
-export function initGlobe(three, continents){
+export function initGlobe(three, OrbitControls, continents, plates, rotations){
 
 THREE = three;
 
@@ -20,27 +21,21 @@ window.innerWidth/window.innerHeight,
 
 camera.position.z = 3;
 
-renderer = new THREE.WebGLRenderer({
-antialias:true,
-alpha:true
-});
-
-renderer.setPixelRatio(window.devicePixelRatio);
-
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.getElementById("globe").appendChild(renderer.domElement);
-
-window.addEventListener("resize",()=>{
-
-camera.aspect = window.innerWidth/window.innerHeight;
-camera.updateProjectionMatrix();
+renderer = new THREE.WebGLRenderer({antialias:true});
 
 renderer.setSize(window.innerWidth,window.innerHeight);
 
-});
+document.getElementById("globe").appendChild(renderer.domElement);
+
+controls = new OrbitControls(camera, renderer.domElement);
+
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+
+controls.minDistance = 1.5;
+controls.maxDistance = 10;
 
 createEarth();
-
 drawContinents(continents);
 
 animate();
@@ -151,9 +146,7 @@ function animate(){
 
 requestAnimationFrame(animate);
 
-console.log("frame");
-
-globe.rotation.y += 0.001;
+controls.update();
 
 renderer.render(scene,camera);
 
