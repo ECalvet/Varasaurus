@@ -13,9 +13,9 @@ let rotations;
 
 async function init(){
 
-continents = await loadGeoJSON("../data/continents.geojson");
-plates = await loadGeoJSON("../data/plates.geojson");
-rotations = await loadRotations("../data/rotations.rot");
+continents = await loadGeoJSON("data/continents.geojson");
+plates = await loadGeoJSON("data/plates.geojson");
+rotations = await loadRotations("data/rotations.rot");
 
 initGlobe(THREE, continents, plates, rotations);
 
