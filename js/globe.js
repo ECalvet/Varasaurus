@@ -6,89 +6,106 @@ let renderer;
 let globe;
 let controls;
 
+let plateMeshes = {};
+let rotationsData;
+
 export function initGlobe(three, OrbitControls, continents, plates, rotations){
 
 THREE = three;
+rotationsData = rotations;
 
 scene = new THREE.Scene();
 
 camera = new THREE.PerspectiveCamera(
 45,
-window.innerWidth/window.innerHeight,
+window.innerWidth / window.innerHeight,
 0.1,
 1000
 );
 
 camera.position.z = 3;
 
-renderer = new THREE.WebGLRenderer({antialias:true});
+renderer = new THREE.WebGLRenderer({ antialias: true });
 
-renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
 
 document.getElementById("globe").appendChild(renderer.domElement);
 
 controls = new OrbitControls(camera, renderer.domElement);
-
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
-
 controls.minDistance = 1.5;
 controls.maxDistance = 10;
 
 createEarth();
 drawContinents(continents);
 
+window.addEventListener("resize", onResize);
+
 animate();
+}
+
+function onResize(){
+
+camera.aspect = window.innerWidth / window.innerHeight;
+camera.updateProjectionMatrix();
+
+renderer.setSize(window.innerWidth, window.innerHeight);
 
 }
 
-
 function createEarth(){
 
-const geometry = new THREE.SphereGeometry(1,64,64);
+const geometry = new THREE.SphereGeometry(1, 64, 64);
 
 const material = new THREE.MeshBasicMaterial({
-color:0x001133
+color: 0x001133
 });
 
-globe = new THREE.Mesh(geometry,material);
+globe = new THREE.Mesh(geometry, material);
 
 scene.add(globe);
 
 }
 
-function latLonToVector3(lat,lon,radius=1.01){
+function latLonToVector3(lat, lon, radius = 1.01){
 
-const phi = (90-lat)*(Math.PI/180);
-const theta = (lon+180)*(Math.PI/180);
+const phi = (90 - lat) * (Math.PI / 180);
+const theta = (lon + 180) * (Math.PI / 180);
 
-const x = -(radius*Math.sin(phi)*Math.cos(theta));
-const z = (radius*Math.sin(phi)*Math.sin(theta));
-const y = (radius*Math.cos(phi));
+const x = -(radius * Math.sin(phi) * Math.cos(theta));
+const z = (radius * Math.sin(phi) * Math.sin(theta));
+const y = (radius * Math.cos(phi));
 
-return new THREE.Vector3(x,y,z);
+return new THREE.Vector3(x, y, z);
 
 }
 
-function drawPolygon(coords){
+function drawPolygon(coords, plateId){
 
-const material = new THREE.LineBasicMaterial({color:0x55ff88});
+const material = new THREE.LineBasicMaterial({ color: 0x55ff88 });
 
-const points=[];
+const points = [];
 
-for(let coord of coords){
+for(const coord of coords){
 
-const v = latLonToVector3(coord[1],coord[0]);
-
+const v = latLonToVector3(coord[1], coord[0]);
 points.push(v);
 
 }
 
 const geometry = new THREE.BufferGeometry().setFromPoints(points);
 
-const line = new THREE.Line(geometry,material);
+const line = new THREE.Line(geometry, material);
 
 scene.add(line);
+
+if(!plateMeshes[plateId]){
+plateMeshes[plateId] = [];
+}
+
+plateMeshes[plateId].push(line);
 
 }
 
@@ -101,13 +118,13 @@ let count = 0;
 for(const feature of data.features){
 
 const geom = feature.geometry;
+const plateId = feature.properties.plate_id || "UNKNOWN";
 
 if(geom.type === "Polygon"){
 
 for(const ring of geom.coordinates){
 
-drawPolygon(ring);
-
+drawPolygon(ring, plateId);
 count++;
 
 }
@@ -120,8 +137,7 @@ for(const polygon of geom.coordinates){
 
 for(const ring of polygon){
 
-drawPolygon(ring);
-
+drawPolygon(ring, plateId);
 count++;
 
 }
@@ -132,13 +148,51 @@ count++;
 
 }
 
-console.log("Polygons drawn:",count);
+console.log("Polygons drawn:", count);
 
 }
 
-export function updateTime(t){
+function getRotationForPlate(plate, time){
 
-console.log("Time =",t);
+let best = null;
+
+for(const r of rotationsData){
+
+if(r.plate !== plate) continue;
+
+if(r.time <= time){
+
+if(!best || r.time > best.time){
+best = r;
+}
+
+}
+
+}
+
+return best;
+
+}
+
+export function updateTime(time){
+
+for(const plate in plateMeshes){
+
+const rot = getRotationForPlate(plate, time);
+
+if(!rot) continue;
+
+const axis = latLonToVector3(rot.lat, rot.lon, 1).normalize();
+
+const angle = THREE.MathUtils.degToRad(rot.angle);
+
+for(const mesh of plateMeshes[plate]){
+
+mesh.setRotationFromAxisAngle(axis, angle);
+
+}
+
+}
 
 }
 
@@ -148,7 +202,6 @@ requestAnimationFrame(animate);
 
 controls.update();
 
-renderer.render(scene,camera);
+renderer.render(scene, camera);
 
 }
-
