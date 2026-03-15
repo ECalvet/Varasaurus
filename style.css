@@ -1,4 +1,3 @@
-/* Page entière mais pas de débordement */
 html, body {
   margin: 0;
   padding: 0;
@@ -7,29 +6,21 @@ html, body {
   overflow: hidden;
   background-color: #111;
   font-family: Arial, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
-/* Conteneur globe + slider */
 #globeContainer {
   position: relative;
-  width: 90vw;
-  max-width: 1200px;
-  height: 90vh;
-  max-height: 900px;
+  width: 100vw;
+  height: 100vh;
 }
 
-/* Globe prend tout le conteneur */
+/* Globe prend tout l'espace du conteneur */
 #globeViz {
   width: 100%;
   height: 100%;
-  border-radius: 10px;
-  border: 1px solid #333;
 }
 
-/* Slider positionné en bas du globe */
+/* Slider superposé en bas du globe */
 #sliderContainer {
   position: absolute;
   bottom: 20px;
