@@ -1,10 +1,11 @@
-// Filtrer uniquement les Polygons et MultiPolygons
+// main.js
+
+// Filtrer uniquement Polygons et MultiPolygons
 const polygonFeatures = continents.features.filter(f =>
   f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon'
 );
 
-const globe = Globe()
-  (document.getElementById('globeViz'))
+const globe = Globe()(document.getElementById('globeViz'))
   .globeImageUrl('//unpkg.com/three-globe/example/img/earth-day.jpg')
   .polygonsData(polygonFeatures)
   .polygonCapColor(() => 'rgba(0,200,255,0.6)')
@@ -12,7 +13,7 @@ const globe = Globe()
   .polygonStrokeColor(() => '#111')
   .polygonAltitude(0.01);
 
-// Fonction de rotation des coordonnées
+// Fonction de rotation
 function rotateGeojson(coords, rx, ry, rz) {
   const euler = new THREE.Euler(
     THREE.MathUtils.degToRad(rx),
@@ -53,10 +54,14 @@ slider.addEventListener('input', () => {
 
   polygonFeatures.forEach(feature => {
     const plateId = feature.properties.plate_id;
-    if (rotations[plateId]) {
-      const [rx, ry, rz] = getRotationAtAge(rotations[plateId], age);
-      feature.geometry.coordinates = rotateGeojson(feature.geometry.coordinates, rx, ry, rz);
-    }
+    const rotArray = rotations[plateId];
+    if (!rotArray) return; // ignore si pas de rotation
+
+    const euler = getRotationAtAge(rotArray, age);
+    if (!Array.isArray(euler)) return;
+
+    const [rx, ry, rz] = euler;
+    feature.geometry.coordinates = rotateGeojson(feature.geometry.coordinates, rx, ry, rz);
   });
 
   globe.polygonsData(polygonFeatures);
