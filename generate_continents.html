@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Générateur continents.js</title>
+</head>
+<body>
+<h2>Générateur de continents.js depuis continents.geojson</h2>
+
+<input type="file" id="geojsonFile" accept=".geojson">
+<br><br>
+<button id="generateBtn">Générer continents.js</button>
+<br><br>
+<textarea id="output" style="width:90%; height:400px;"></textarea>
+
+<script>
+document.getElementById('generateBtn').addEventListener('click', () => {
+  const fileInput = document.getElementById('geojsonFile');
+  if (!fileInput.files[0]) { 
+    alert('Choisis ton fichier continents.geojson'); 
+    return; 
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const geojson = JSON.parse(e.target.result); // parser le JSON
+      const jsContent = `const continents = ${JSON.stringify(geojson, null, 2)};`;
+      document.getElementById('output').value = jsContent;
+    } catch(err) {
+      alert('Erreur lors de la lecture du GeoJSON : ' + err.message);
+    }
+  };
+
+  reader.readAsText(fileInput.files[0]);
+});
+</script>
+</body>
+</html>
