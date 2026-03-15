@@ -1,34 +1,59 @@
-import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+// Assumes continents variable is loaded from continents.geojson
+const globe = Globe()
+  (document.getElementById('globeViz'))
+  .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
+  .polygonsData(continents.features)
+  .polygonCapColor(() => 'rgba(0,200,255,0.6)')
+  .polygonSideColor(() => 'rgba(0,100,255,0.2)')
+  .polygonStrokeColor(() => '#111')
+  .polygonAltitude(0.01);
 
-import { OrbitControls } from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js?module";
-import { initGlobe, updateTime } from "./globe.js";
-import { loadGeoJSON } from "./geojsonLoader.js";
-import { loadRotations } from "./rotations.js";
+// Helper: rotate coordinates around globe center using Three.js
+function rotateGeojson(coords, rx, ry, rz) {
+  const euler = new THREE.Euler(
+    THREE.MathUtils.degToRad(rx),
+    THREE.MathUtils.degToRad(ry),
+    THREE.MathUtils.degToRad(rz),
+    'XYZ'
+  );
+  const q = new THREE.Quaternion().setFromEuler(euler);
 
-const slider = document.getElementById("timeSlider");
-const label = document.getElementById("timeValue");
+  function rotatePoint(lon, lat) {
+    const phi = THREE.MathUtils.degToRad(90 - lat);
+    const theta = THREE.MathUtils.degToRad(lon + 180);
+    const x = Math.sin(phi) * Math.cos(theta);
+    const y = Math.cos(phi);
+    const z = Math.sin(phi) * Math.sin(theta);
 
-async function init(){
+    const v = new THREE.Vector3(x, y, z).applyQuaternion(q);
 
-console.log("Loading data...");
+    const lat2 = 90 - THREE.MathUtils.radToDeg(Math.acos(v.y));
+    const lon2 = THREE.MathUtils.radToDeg(Math.atan2(v.z, v.x)) - 180;
+    return [lon2, lat2];
+  }
 
-const continents = await loadGeoJSON("data/continents.geojson");
-const plates = await loadGeoJSON("data/plates.geojson");
-const rotations = await loadRotations("data/rotations.rot");
-
-console.log("Data loaded");
-
-initGlobe(THREE, OrbitControls, continents, plates, rotations);
+  if (Array.isArray(coords[0][0])) {
+    return coords.map(ring => ring.map(([lon, lat]) => rotatePoint(lon, lat)));
+  } else {
+    return coords.map(([lon, lat]) => rotatePoint(lon, lat));
+  }
 }
 
-slider.addEventListener("input", e => {
+// Slider
+const slider = document.getElementById('timeSlider');
+const ageLabel = document.getElementById('currentAge');
 
-const t = parseInt(e.target.value);
+slider.addEventListener('input', () => {
+  const age = parseFloat(slider.value);
+  ageLabel.textContent = age + ' Ma';
 
-label.innerText = t;
+  continents.features.forEach(feature => {
+    const plateId = feature.properties.plate_id;
+    if (rotations[plateId]) {
+      const [rx, ry, rz] = getRotationAtAge(rotations[plateId], age);
+      feature.geometry.coordinates = rotateGeojson(feature.geometry.coordinates, rx, ry, rz);
+    }
+  });
 
-updateTime(t);
-
+  globe.polygonsData(continents.features);
 });
-
-init();
