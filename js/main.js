@@ -1,10 +1,35 @@
-// main.js sécurisé
+// main.js
 
-// Filtrer uniquement Polygons et MultiPolygons
-const polygonFeatures = continents.features.filter(f =>
-  f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon'
+// ------------------------------
+// Fonction de rotation interpolée
+// ------------------------------
+function getRotationAtAge(rotArray, age) {
+  if (!rotArray || rotArray.length === 0) return [0, 0, 0]; // sécurité
+
+  for (let i = 0; i < rotArray.length - 1; i++) {
+    if (age >= rotArray[i].age && age <= rotArray[i + 1].age) {
+      const t = (age - rotArray[i].age) / (rotArray[i + 1].age - rotArray[i].age);
+      return rotArray[i].euler.map(
+        (v, idx) => v + t * (rotArray[i + 1].euler[idx] - v)
+      );
+    }
+  }
+
+  // Si age avant ou après la plage connue
+  if (age < rotArray[0].age) return rotArray[0].euler;
+  return rotArray[rotArray.length - 1].euler;
+}
+
+// ------------------------------
+// Filtrer les Polygons / MultiPolygons
+// ------------------------------
+const polygonFeatures = continents.features.filter(
+  f => f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon'
 );
 
+// ------------------------------
+// Initialiser Globe
+// ------------------------------
 const globe = Globe()(document.getElementById('globeViz'))
   .globeImageUrl('//unpkg.com/three-globe/example/img/earth-day.jpg')
   .polygonsData(polygonFeatures)
@@ -13,7 +38,9 @@ const globe = Globe()(document.getElementById('globeViz'))
   .polygonStrokeColor(() => '#111')
   .polygonAltitude(0.01);
 
-// Rotation
+// ------------------------------
+// Rotation des coordonnées
+// ------------------------------
 function rotateGeojson(coords, rx, ry, rz) {
   const euler = new THREE.Euler(
     THREE.MathUtils.degToRad(rx),
@@ -44,7 +71,9 @@ function rotateGeojson(coords, rx, ry, rz) {
   }
 }
 
-// Slider
+// ------------------------------
+// Slider temporel
+// ------------------------------
 const slider = document.getElementById('timeSlider');
 const ageLabel = document.getElementById('currentAge');
 
@@ -56,11 +85,12 @@ slider.addEventListener('input', () => {
     const plateId = feature.properties.plate_id;
     const rotArray = rotations[plateId];
 
-    if (!rotArray || rotArray.length === 0) return; // ignore si pas de rotation
+    if (!rotArray || rotArray.length === 0) return; // aucune rotation connue
 
     const euler = getRotationAtAge(rotArray, age);
 
-    if (!Array.isArray(euler) || euler.length !== 3) return; // sécurité
+    // sécurité : si euler n'est pas un tableau de 3 nombres, ignorer
+    if (!Array.isArray(euler) || euler.length !== 3) return;
     const [rx, ry, rz] = euler;
 
     feature.geometry.coordinates = rotateGeojson(feature.geometry.coordinates, rx, ry, rz);
