@@ -1,14 +1,12 @@
-// Assumes continents variable is loaded from continents.geojson
 const globe = Globe()
   (document.getElementById('globeViz'))
-  .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
+  .globeImageUrl('//unpkg.com/three-globe/example/img/earth-day.jpg') // globe lumineux
   .polygonsData(continents.features)
   .polygonCapColor(() => 'rgba(0,200,255,0.6)')
   .polygonSideColor(() => 'rgba(0,100,255,0.2)')
   .polygonStrokeColor(() => '#111')
   .polygonAltitude(0.01);
 
-// Helper: rotate coordinates around globe center using Three.js
 function rotateGeojson(coords, rx, ry, rz) {
   const euler = new THREE.Euler(
     THREE.MathUtils.degToRad(rx),
@@ -39,7 +37,6 @@ function rotateGeojson(coords, rx, ry, rz) {
   }
 }
 
-// Slider
 const slider = document.getElementById('timeSlider');
 const ageLabel = document.getElementById('currentAge');
 
