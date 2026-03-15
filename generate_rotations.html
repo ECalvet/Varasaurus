@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Générateur rotations.js</title>
+</head>
+<body>
+<h2>Générateur de rotations.js depuis rotations.rot</h2>
+
+<input type="file" id="rotFile" accept=".rot">
+<br><br>
+<button id="generateBtn">Générer rotations.js</button>
+<br><br>
+<textarea id="output" style="width:90%; height:400px;"></textarea>
+
+<script>
+document.getElementById('generateBtn').addEventListener('click', () => {
+  const fileInput = document.getElementById('rotFile');
+  if (!fileInput.files[0]) { alert('Choisis ton fichier rotations.rot'); return; }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const lines = e.target.result.split(/\r?\n/);
+    const rotations = {};
+
+    lines.forEach(line => {
+      line = line.trim();
+      if (!line || line.startsWith('!')) return;
+
+      const parts = line.split(/\s+/);
+      if (parts.length < 5) return;
+
+      const plate_id = parts[0];
+      const age = parseFloat(parts[1]);
+      const rot_x = parseFloat(parts[2]);
+      const rot_y = parseFloat(parts[3]);
+      const rot_z = parseFloat(parts[4]);
+
+      if (!rotations[plate_id]) rotations[plate_id] = [];
+      rotations[plate_id].push({ age, euler: [rot_x, rot_y, rot_z] });
+    });
+
+    // Générer le JS
+    let jsContent = 'const rotations = {\n';
+    for (const [plate, arr] of Object.entries(rotations)) {
+      jsContent += `  ${plate}: [\n`;
+      arr.forEach(r => {
+        jsContent += `    { age: ${r.age}, euler: [${r.euler.join(', ')}] },\n`;
+      });
+      jsContent += '  ],\n';
+    }
+    jsContent += '};\n\n';
+
+    jsContent += `function getRotationAtAge(rotArray, age) {
+  for (let i = 0; i < rotArray.length - 1; i++) {
+    if (age >= rotArray[i].age && age <= rotArray[i + 1].age) {
+      const t = (age - rotArray[i].age) / (rotArray[i + 1].age - rotArray[i].age);
+      return rotArray[i].euler.map((v, idx) => v + t * (rotArray[i + 1].euler[idx] - v));
+    }
+  }
+  return rotArray[rotArray.length - 1].euler;
+}`;
+
+    document.getElementById('output').value = jsContent;
+  };
+
+  reader.readAsText(fileInput.files[0]);
+});
+</script>
+</body>
+</html>
