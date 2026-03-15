@@ -1,30 +1,46 @@
-body {
+/* Page entière mais pas de débordement */
+html, body {
   margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: #111;
   font-family: Arial, sans-serif;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  background-color: #111;
-  color: #fff;
 }
 
-h1 {
-  margin: 1rem 0;
-}
-
-#globeViz {
+/* Conteneur globe + slider */
+#globeContainer {
+  position: relative;
   width: 90vw;
-  height: 80vh;
   max-width: 1200px;
-  border: 1px solid #333;
-  border-radius: 10px;
+  height: 90vh;
+  max-height: 900px;
 }
 
+/* Globe prend tout le conteneur */
+#globeViz {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  border: 1px solid #333;
+}
+
+/* Slider positionné en bas du globe */
 #sliderContainer {
-  margin: 1rem;
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 10px;
+  background-color: rgba(0,0,0,0.5);
+  padding: 5px 10px;
+  border-radius: 10px;
 }
 
 input[type=range] {
