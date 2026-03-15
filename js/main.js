@@ -1,12 +1,18 @@
+// Filtrer uniquement les Polygons et MultiPolygons
+const polygonFeatures = continents.features.filter(f =>
+  f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon'
+);
+
 const globe = Globe()
   (document.getElementById('globeViz'))
-  .globeImageUrl('//unpkg.com/three-globe/example/img/earth-day.jpg') // globe lumineux
-  .polygonsData(continents.features)
+  .globeImageUrl('//unpkg.com/three-globe/example/img/earth-day.jpg')
+  .polygonsData(polygonFeatures)
   .polygonCapColor(() => 'rgba(0,200,255,0.6)')
   .polygonSideColor(() => 'rgba(0,100,255,0.2)')
   .polygonStrokeColor(() => '#111')
   .polygonAltitude(0.01);
 
+// Fonction de rotation des coordonnées
 function rotateGeojson(coords, rx, ry, rz) {
   const euler = new THREE.Euler(
     THREE.MathUtils.degToRad(rx),
@@ -37,6 +43,7 @@ function rotateGeojson(coords, rx, ry, rz) {
   }
 }
 
+// Slider
 const slider = document.getElementById('timeSlider');
 const ageLabel = document.getElementById('currentAge');
 
@@ -44,7 +51,7 @@ slider.addEventListener('input', () => {
   const age = parseFloat(slider.value);
   ageLabel.textContent = age + ' Ma';
 
-  continents.features.forEach(feature => {
+  polygonFeatures.forEach(feature => {
     const plateId = feature.properties.plate_id;
     if (rotations[plateId]) {
       const [rx, ry, rz] = getRotationAtAge(rotations[plateId], age);
@@ -52,5 +59,5 @@ slider.addEventListener('input', () => {
     }
   });
 
-  globe.polygonsData(continents.features);
+  globe.polygonsData(polygonFeatures);
 });
