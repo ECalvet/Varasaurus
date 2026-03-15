@@ -1,4 +1,4 @@
-// main.js
+// main.js sécurisé
 
 // Filtrer uniquement Polygons et MultiPolygons
 const polygonFeatures = continents.features.filter(f =>
@@ -13,7 +13,7 @@ const globe = Globe()(document.getElementById('globeViz'))
   .polygonStrokeColor(() => '#111')
   .polygonAltitude(0.01);
 
-// Fonction de rotation
+// Rotation
 function rotateGeojson(coords, rx, ry, rz) {
   const euler = new THREE.Euler(
     THREE.MathUtils.degToRad(rx),
@@ -55,12 +55,14 @@ slider.addEventListener('input', () => {
   polygonFeatures.forEach(feature => {
     const plateId = feature.properties.plate_id;
     const rotArray = rotations[plateId];
-    if (!rotArray) return; // ignore si pas de rotation
+
+    if (!rotArray || rotArray.length === 0) return; // ignore si pas de rotation
 
     const euler = getRotationAtAge(rotArray, age);
-    if (!Array.isArray(euler)) return;
 
+    if (!Array.isArray(euler) || euler.length !== 3) return; // sécurité
     const [rx, ry, rz] = euler;
+
     feature.geometry.coordinates = rotateGeojson(feature.geometry.coordinates, rx, ry, rz);
   });
 
