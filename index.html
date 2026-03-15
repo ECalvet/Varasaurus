@@ -9,13 +9,12 @@
   <script src="https://unpkg.com/globe.gl"></script>
 </head>
 <body>
-  <h1>Globe Paléogéographique interactif</h1>
-
-  <div id="globeViz"></div>
-
-  <div id="sliderContainer">
-    <input type="range" id="timeSlider" min="0" max="200" step="1" value="0">
-    <span id="currentAge">0 Ma</span>
+  <div id="globeContainer">
+    <div id="globeViz"></div>
+    <div id="sliderContainer">
+      <input type="range" id="timeSlider" min="0" max="200" step="1" value="0">
+      <span id="currentAge">0 Ma</span>
+    </div>
   </div>
 
   <script src="js/rotations.js"></script>
