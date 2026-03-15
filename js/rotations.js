@@ -1,29 +1,26 @@
-export async function loadRotations(path){
+const rotations = {
+  83330: [
+    { age: 0.0, euler: [90.0, 0.0, 0.0] },
+    { age: 85.96, euler: [90.0, 0.0, 0.0] },
+    { age: 100.0, euler: [-58.51, -33.61, 0.45] },
+    { age: 600.0, euler: [90.0, 0.0, 0.0] }
+  ],
+  83340: [
+    { age: 0.0, euler: [90.0, 0.0, 0.0] },
+    { age: 85.96, euler: [90.0, 0.0, 0.0] },
+    { age: 100.0, euler: [4.41, -31.26, 1.52] },
+    { age: 600.0, euler: [90.0, 0.0, 0.0] }
+  ],
+  // ajoute toutes les plaques ici
+};
 
-const text = await fetch(path).then(r=>r.text());
-
-const lines = text.split("\n");
-
-const rotations=[];
-
-for(let line of lines){
-
-line=line.trim();
-
-if(line==="" || line.startsWith("!")) continue;
-
-const p=line.split(/\s+/);
-
-rotations.push({
-plate:p[0],
-time:parseFloat(p[1]),
-lat:parseFloat(p[2]),
-lon:parseFloat(p[3]),
-angle:parseFloat(p[4])
-});
-
-}
-
-return rotations;
-
+// Interpolation simple entre rotations
+function getRotationAtAge(rotArray, age) {
+  for (let i = 0; i < rotArray.length - 1; i++) {
+    if (age >= rotArray[i].age && age <= rotArray[i + 1].age) {
+      const t = (age - rotArray[i].age) / (rotArray[i + 1].age - rotArray[i].age);
+      return rotArray[i].euler.map((v, idx) => v + t * (rotArray[i + 1].euler[idx] - v));
+    }
+  }
+  return rotArray[rotArray.length - 1].euler;
 }
