@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Réduire polygones continents.geojson</title>
+</head>
+<body>
+<h2>Diviser par 2 le nombre de polygones</h2>
+
+<input type="file" id="geojsonFile" accept=".geojson">
+<br><br>
+<button id="reduceBtn">Réduire polygones</button>
+<br><br>
+<textarea id="output" style="width:90%; height:400px;"></textarea>
+
+<script>
+document.getElementById('reduceBtn').addEventListener('click', () => {
+  const fileInput = document.getElementById('geojsonFile');
+  if (!fileInput.files[0]) { alert('Choisis ton fichier continents.geojson'); return; }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const geojson = JSON.parse(e.target.result);
+      const reducedFeatures = geojson.features.filter((f, i) => i % 2 === 0); // garder un sur deux
+
+      const reducedGeojson = { ...geojson, features: reducedFeatures };
+      const jsContent = `const continents = ${JSON.stringify(reducedGeojson, null, 2)};`;
+
+      document.getElementById('output').value = jsContent;
+    } catch(err) {
+      alert('Erreur lors de la lecture du GeoJSON : ' + err.message);
+    }
+  };
+
+  reader.readAsText(fileInput.files[0]);
+});
+</script>
+</body>
+</html>
