@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<title>PaleoGlobe</title>
-
-<link rel="stylesheet" href="style.css">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Globe Paléogéographique</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
+  <script src="https://unpkg.com/globe.gl"></script>
 </head>
-
 <body>
+  <h1>Globe Paléogéographique interactif</h1>
 
-<div id="ui">
-<label>Temps : <span id="timeValue">0</span> Ma</label>
-<input type="range" id="timeSlider" min="0" max="200" step="1" value="0">
-</div>
+  <div id="globeViz"></div>
 
-<div id="globe"></div>
+  <div id="sliderContainer">
+    <input type="range" id="timeSlider" min="0" max="200" step="1" value="0">
+    <span id="currentAge">0 Ma</span>
+  </div>
 
-<script type="module" src="js/main.js"></script>
-
+  <script src="js/rotations.js"></script>
+  <script src="js/continents.geojson"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
